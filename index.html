@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library Inventory</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <!-- Bootstrap CSS eklemek için aşağıdaki satırı kullanabilirsin -->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      #app {
+        max-width: 800px;
+        width: 90%;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+        font-size: small;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      button {
+        padding: 8px;
+        cursor: pointer;
+      }
+
+      input[type='text'],
+      select {
+        width: 50%;
+        padding: 8px;
+        margin-right: 8px;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 4px 8px;
+        margin-right: 4px;
+        border-radius: 4px;
+      }
+
+      .tag-to-read {
+        background-color: #ffc107;
+        color: #000;
+      }
+
+      .tag-reading {
+        background-color: #17a2b8;
+        color: #fff;
+      }
+
+      .tag-read {
+        background-color: #28a745;
+        color: #fff;
+      }
+
+      @media (max-width: 600px) {
+        input[type='text'],
+        select {
+          width: 100%;
+          margin-right: 0;
+        }
+      }
+
+      /* İşlemler sütunundaki butonlara stil ekleme */
+      #bookList button {
+        margin-right: 5px; /* Butonlar arasında sağda biraz boşluk bırakma */
+        padding: 6px 10px; /* Buton içeriğine ve dış kenarlara padding ekleme */
+        font-size: 12px; /* Buton metni font boyutu */
+        border: none; /* Kenarlık kaldırma */
+        cursor: pointer;
+      }
+
+      #bookList button:hover {
+        opacity: 0.8; /* Butona hover olduğunda biraz saydamlık ekleyerek efekt yapma */
+      }
+
+      #bookList button:active {
+        transform: translateY(
+          1px
+        ); /* Butona tıklandığında biraz aşağıya kaydırma efekti */
+      }
+
+      /* Durumu Değiştir butonuna özel stil */
+      #bookList button.change-status {
+        background-color: #17a2b8; /* Arka plan rengi */
+        color: #fff; /* Metin rengi */
+        border-radius: 3px; /* Köşe yuvarlama */
+      }
+
+      /* Sil butonuna özel stil */
+      #bookList button.delete {
+        background-color: #dc3545; /* Arka plan rengi */
+        color: #fff; /* Metin rengi */
+        border-radius: 3px; /* Köşe yuvarlama */
+      }
+
+      #basic-addon1 {
+        font-weight: bold;
+        font-size: small;
+        background-color: gray;
+        color: white;
+      }
+
+      .card-header {
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="card">
+        <div class="card-header bg-primary">
+          YaMi Kütüphanesi Envanter Programı v.1.0
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            <small>
+              Bu sayfa ile envantere yeni giriş yapabilir,
+              <a href="#bookList">listedeki</a> kayıtların durumunu
+              değiştirebilir ve kayıt silebilirsiniz.</small
+            >
+          </div>
+          <form class="form-group">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span
+                  class="input-group-text"
+                  id="basic-addon1"
+                  style="background-color: yellow; color: black"
+                  >Arama</span
+                >
+              </div>
+              <input class="form-control"" type="text" id="searchInput"
+              placeholder="Kitap adı, yazar adı, kategori, yayın evi, raf sıra no veya durum ile arayın...">
+            </div>
+
+            <hr />
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span
+                  class="input-group-text"
+                  id="basic-addon1"
+                  style="background-color: orange; color: black"
+                  >Kitap adı:</span
+                >
+              </div>
+              <input
+                class="form-control"
+                type="text"
+                id="bookInput"
+                placeholder="Kitap adını girin..."
+              />
+            </div>
+
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span
+                  class="input-group-text"
+                  id="basic-addon1"
+                  style="background-color: orange; color: black"
+                  >Yazar adı:</span
+                >
+              </div>
+              <input
+                class="form-control"
+                type="text"
+                id="authorInput"
+                placeholder="Yazar adını girin..."
+              />
+            </div>
+
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span
+                  class="input-group-text"
+                  id="basic-addon1"
+                  style="background-color: orange; color: black"
+                  >Yayınevi adı:</span
+                >
+              </div>
+              <input
+                class="form-control"
+                type="text"
+                id="publisherInput"
+                placeholder="Yayın evini girin..."
+              />
+            </div>
+
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span
+                  class="input-group-text"
+                  id="basic-addon1"
+                  style="background-color: green; color: white"
+                  >Raf SıraNo:</span
+                >
+              </div>
+              <input
+                class="form-control"
+                type="text"
+                id="shelfNumberInput"
+                placeholder="Raf sıra no girin..."
+              />
+            </div>
+
+            <select
+              class="form-control"
+              style="width: 100%"
+              id="categorySelect"
+              placeholder="Kategori seçin..."
+            >
+              <option value="" disabled selected>Kategori seç...</option>
+              <option value="Anı-Biyografi">Anı-Biyografi</option>
+              <option value="Araştırma">Araştırma</option>
+              <option value="Çocuk">Çocuk</option>
+              <option value="Fantastik">Fantastik</option>
+              <option value="Tıbbi">Tıbbi</option>
+              <option value="Harry Potter">Harry Potter</option>
+              <option value="Atlas">Atlas</option>
+              <option value="Şiir">Şiir</option>
+              <option value="Siyaset">Siyaset</option>
+              <option value="Gezi">Gezi</option>
+              <option value="Diğer">Diğer</option>
+              <option value="Roman">Roman</option>
+              <option value="Bilim Kurgu">Bilim Kurgu</option>
+              <option value="Polisiye">Polisiye</option></select
+            ><br />
+            <button class="btn btn-success btn-block" onclick="addBook()">
+              Kitap Ekle
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Kitap Adı</th>
+            <th>Yazar Adı</th>
+            <th>Kategori</th>
+            <th>Yayın Evi</th>
+            <th>Raf Sıra No</th>
+            <th>Durum</th>
+            <th>Eklenme Tarihi</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody id="bookList">
+          <!-- Eklenen kitaplar burada listelenecek -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bootstrap JS ve Popper.js eklemek için aşağıdaki satırları kullanabilirsin -->
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script> -->
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+
+    <script>
+      let books = JSON.parse(localStorage.getItem('books')) || [];
+      let nextBookId = localStorage.getItem('nextBookId') || 1;
+
+      function addBook() {
+        const bookInput = document.getElementById('bookInput');
+        const authorInput = document.getElementById('authorInput');
+        const publisherInput = document.getElementById('publisherInput');
+        const shelfNumberInput = document.getElementById('shelfNumberInput');
+        const categorySelect = document.getElementById('categorySelect');
+
+        const bookName = bookInput.value.trim();
+        const authorName = authorInput.value.trim();
+        const publisher = publisherInput.value.trim();
+        const shelfNumber = shelfNumberInput.value.trim();
+        const category = categorySelect.value;
+        const addedDate = new Date().toLocaleDateString();
+
+        if (bookName !== '' && authorName !== '' && category !== '') {
+          const book = {
+            id: nextBookId,
+            name: bookName,
+            author: authorName,
+            category: category,
+            publisher: publisher,
+            shelfNumber: shelfNumber,
+            status: 'okunmadı',
+            addedDate: addedDate,
+          };
+
+          books.push(book);
+          updateBooksAndDisplay();
+          bookInput.value = '';
+          authorInput.value = '';
+          publisherInput.value = '';
+          shelfNumberInput.value = '';
+          categorySelect.value = '';
+
+          nextBookId++;
+          localStorage.setItem('nextBookId', nextBookId);
+        }
+      }
+
+      function updateBooksAndDisplay() {
+        localStorage.setItem('books', JSON.stringify(books));
+        displayBooks();
+      }
+
+      function displayBooks() {
+        const bookList = document.getElementById('bookList');
+        bookList.innerHTML = '';
+
+        const searchInput = document
+          .getElementById('searchInput')
+          .value.toLowerCase();
+
+        books.forEach((book, index) => {
+          const bookName = book.name.toLowerCase();
+          const authorName = book.author.toLowerCase();
+          const category = book.category.toLowerCase();
+          const publisher = book.publisher ? book.publisher.toLowerCase() : '';
+          const shelfNumber = book.shelfNumber
+            ? book.shelfNumber.toLowerCase()
+            : '';
+          const status = getStatusText(book.status).toLowerCase();
+          const addedDate = book.addedDate.toLowerCase();
+
+          if (
+            bookName.includes(searchInput) ||
+            authorName.includes(searchInput) ||
+            category.includes(searchInput) ||
+            publisher.includes(searchInput) ||
+            shelfNumber.includes(searchInput) ||
+            status.includes(searchInput) ||
+            addedDate.includes(searchInput)
+          ) {
+            const listItem = document.createElement('tr');
+            listItem.innerHTML = `
+                        <td>${book.id}</td>
+                        <td>${book.name}</td>
+                        <td>${book.author}</td>
+                        <td>${book.category}</td>
+                        <td>${book.publisher || '-'}</td>
+                        <td>${book.shelfNumber || '-'}</td>
+                        <td>
+                            <span class="tag ${getStatusColor(book.status)}">
+                                ${getStatusText(book.status)}
+                            </span>
+                        </td>
+                        <td>${book.addedDate}</td>
+                        <td>
+                             <button class="change-status" onclick="toggleStatus(${index})">Durum değiştir</button>
+                            <button class="delete" onclick="deleteBook(${index})">Kaydı sil</button>
+                       </td>
+                    `;
+
+            bookList.appendChild(listItem);
+          }
+        });
+      }
+
+      function toggleStatus(index) {
+        const currentStatus = books[index].status;
+        const statusOptions = [
+          'okunmadı',
+          'Yasin okuyacak',
+          'Mine okuyacak',
+          'Yasin okudu',
+          'Mine okudu',
+          'Herkes okudu',
+        ];
+
+        // Durumu döngüsel olarak değiştir
+        const nextStatusIndex =
+          (statusOptions.indexOf(currentStatus) + 1) % statusOptions.length;
+        books[index].status = statusOptions[nextStatusIndex];
+
+        updateBooksAndDisplay();
+      }
+
+      function deleteBook(index) {
+        books.splice(index, 1);
+        updateBooksAndDisplay();
+      }
+
+      function getStatusText(status) {
+        switch (status) {
+          case 'okunmadı':
+            return 'Okunmadı';
+          case 'Yasin okuyacak':
+            return 'Yasin okuyacak';
+          case 'Mine okuyacak':
+            return 'Mine okuyacak';
+          case 'Yasin okudu':
+            return 'Yasin okudu';
+          case 'Mine okudu':
+            return 'Mine okudu';
+          case 'Herkes okudu':
+            return 'Herkes okudu';
+          default:
+            return '';
+        }
+      }
+
+      function getStatusColor(status) {
+        switch (status) {
+          case 'okunmadı':
+            return 'tag-to-read';
+          case 'Yasin okuyacak':
+          case 'Mine okuyacak':
+            return 'tag-reading';
+          case 'Yasin okudu':
+          case 'Mine okudu':
+          case 'Herkes okudu':
+            return 'tag-read';
+          default:
+            return '';
+        }
+      }
+
+      // Sayfa yüklendiğinde Local Storage'dan kitapları al ve görüntüle
+      window.onload = function () {
+        displayBooks();
+      };
+
+      // Arama kutusuna herhangi bir tuşa basıldığında arama fonksiyonunu çağır
+      document
+        .getElementById('searchInput')
+        .addEventListener('input', displayBooks);
+    </script>
+  </body>
+</html>
